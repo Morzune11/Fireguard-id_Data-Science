@@ -1,0 +1,949 @@
+FIREGUARD ID
+Forest & Land Fire Intelligence, Response, and Resource Optimization System
+
+Project Master Document
+
+Metadata	Keterangan
+Nama proyek	FIREGUARD ID
+Kepanjangan	Forest & Land Fire Intelligence, Response, and Resource Optimization System
+Domain	Artificial Intelligence, Geospatial Analytics, Environmental Intelligence
+Permasalahan	Kebakaran Hutan dan Lahan (Karhutla)
+Wilayah pilot	Provinsi Riau, Indonesia
+Periode historis target	20 Januari 2012 – 31 Desember 2025
+Metodologi utama	Unsupervised Learning, Spatial Clustering, Optimization
+Platform pengembangan	Python, Google Colab, Google Drive
+Fokus kontribusi	SDG 13 – Climate Action
+Status proyek	Data sourcing dan data quality refinement
+1. EXECUTIVE SUMMARY
+
+FIREGUARD ID merupakan sistem pendukung keputusan berbasis kecerdasan buatan, analisis geospasial, dan optimasi sumber daya yang dirancang untuk mendukung mitigasi serta penanggulangan kebakaran hutan dan lahan (Karhutla) di Indonesia.
+
+Proyek ini dikembangkan untuk membantu mengidentifikasi wilayah dengan karakteristik kerawanan kebakaran yang berbeda, menentukan zona prioritas penanganan, serta mengoptimalkan penempatan infrastruktur dan sumber daya tanggap darurat.
+
+Berbeda dari pendekatan yang hanya berfokus pada deteksi hotspot atau prediksi kebakaran jangka pendek, FIREGUARD ID mengembangkan pendekatan analisis kerawanan jangka panjang melalui unsupervised learning dan spatial clustering.
+
+Hasil analisis tersebut selanjutnya menjadi masukan bagi modul optimasi operasional yang mempertimbangkan lokasi fasilitas, kapasitas markas, armada, personel, aksesibilitas, dan anggaran.
+
+Provinsi Riau dipilih sebagai wilayah pilot untuk mengembangkan, menguji, dan mengevaluasi metodologi sebelum kemungkinan penerapan pada wilayah lain di Indonesia.
+
+1.1 Visi
+
+Membangun sistem pendukung keputusan yang mampu mengubah data lingkungan, historis kebakaran, dan informasi geospasial menjadi rekomendasi mitigasi Karhutla yang terukur, transparan, dan dapat dipertanggungjawabkan.
+
+1.2 Tujuan utama
+Mengidentifikasi karakteristik kerawanan Karhutla berdasarkan indikator historis dan lingkungan.
+Mengelompokkan wilayah berdasarkan kesamaan karakteristik kerawanan.
+Menghasilkan klasifikasi dan prioritas wilayah untuk intervensi mitigasi.
+Mengoptimalkan lokasi dan kapasitas fasilitas tanggap darurat.
+Mengoptimalkan kebutuhan armada, peralatan, personel, dan dukungan operasional.
+Menghasilkan rekomendasi berbasis data yang dapat divisualisasikan melalui sistem geospasial.
+2. BACKGROUND AND PROBLEM STATEMENT
+
+Kebakaran hutan dan lahan merupakan permasalahan lingkungan yang memiliki dampak terhadap ekosistem, kualitas udara, kesehatan masyarakat, aktivitas ekonomi, dan perubahan iklim.
+
+Penanganan Karhutla membutuhkan pendekatan yang tidak hanya reaktif, tetapi juga preventif dan berbasis informasi spasial.
+
+Beberapa tantangan yang menjadi dasar pengembangan FIREGUARD ID:
+
+Distribusi kerawanan kebakaran tidak merata secara geografis.
+Karakteristik lingkungan dan penggunaan lahan berbeda antarwilayah.
+Riwayat deteksi kebakaran perlu diintegrasikan dengan variabel lingkungan.
+Prioritas mitigasi membutuhkan dasar analisis yang konsisten.
+Penempatan fasilitas tanggap darurat harus mempertimbangkan distribusi risiko dan aksesibilitas.
+Sumber daya operasional terbatas sehingga membutuhkan optimasi alokasi.
+2.1 Research direction
+
+FIREGUARD ID mengarahkan penelitian pada tiga pertanyaan utama:
+
+Bagaimana mengidentifikasi kelompok wilayah dengan karakteristik kerawanan Karhutla yang berbeda?
+Bagaimana menentukan wilayah prioritas berdasarkan hasil analisis kerawanan dan karakteristik spasial?
+Bagaimana mengoptimalkan penempatan fasilitas dan alokasi sumber daya untuk mendukung respons Karhutla?
+2.2 Alignment with SDGs
+
+Proyek ini mendukung:
+
+SDG 13 — Climate Action
+
+Terutama Target 13.1:
+
+Memperkuat ketahanan dan kapasitas adaptasi terhadap bahaya terkait iklim dan bencana alam.
+
+Kontribusi FIREGUARD ID diarahkan pada penguatan kapasitas analisis, identifikasi wilayah prioritas, dan perencanaan mitigasi berbasis data.
+
+3. PROJECT SCOPE
+3.1 Wilayah penelitian
+
+Provinsi Riau, Indonesia.
+
+Wilayah ini menjadi pilot pengembangan sistem, dengan analisis berbasis unit spasial berupa grid.
+
+3.2 Periode data
+
+Periode historis target yang digunakan adalah:
+
+20 Januari 2012 – 31 Desember 2025.
+
+Rentang aktual masing-masing sumber data harus dicatat secara terpisah. Tidak semua sumber harus memiliki tanggal awal dan akhir yang identik.
+
+3.3 Unit analisis
+
+Rancangan dataset engineering menggunakan grid spasial berukuran 0,1°.
+
+Setiap grid akan memiliki profil indikator historis dan lingkungan yang dapat digunakan dalam proses clustering.
+
+Grid 0,1° merupakan rancangan resolusi analisis, bukan representasi batas administratif atau ukuran jarak yang seragam dalam kilometer.
+
+3.4 Batasan ruang lingkup
+
+FIREGUARD ID tidak dirancang sebagai:
+
+Sistem pemadam kebakaran otomatis.
+Pengganti otoritas penanggulangan bencana.
+Sistem prediksi kejadian kebakaran jangka pendek berbasis supervised learning.
+Sistem yang menganggap setiap deteksi hotspot sebagai satu kejadian kebakaran unik.
+Sistem yang menganggap hasil clustering sebagai probabilitas kebakaran.
+4. METHODOLOGY
+4.1 Perubahan metodologi
+
+Pada rancangan awal, proyek mempertimbangkan prediksi probabilitas kebakaran dalam horizon 1–3 hari menggunakan:
+
+Logistic Regression.
+XGBoost.
+LSTM.
+
+Namun, setelah evaluasi metodologi dan arahan dosen, pendekatan tersebut dihapus.
+
+Fokus penelitian dialihkan menjadi analisis kerawanan jangka panjang menggunakan unsupervised learning.
+
+Perubahan ini merupakan keputusan metodologis penting yang harus dipertahankan dalam seluruh notebook dan dokumentasi proyek.
+
+4.2 Model machine learning
+
+Tiga pendekatan yang disepakati:
+
+Model 1 — K-Means Clustering
+
+Kategori: Baseline Model.
+
+Tujuan:
+
+Mengelompokkan grid berdasarkan kesamaan karakteristik fitur.
+Membentuk kelompok yang mudah diinterpretasikan.
+Menjadi baseline pembanding model lainnya.
+
+Parameter yang perlu dievaluasi:
+
+Jumlah cluster.
+Inisialisasi centroid.
+Random seed.
+Konvergensi.
+Silhouette Score.
+Davies-Bouldin Index.
+Calinski-Harabasz Index.
+Model 2 — HDBSCAN
+
+Kategori: Advanced Machine Learning.
+
+Tujuan:
+
+Mengidentifikasi kelompok berdasarkan kepadatan data.
+Mengakomodasi cluster dengan ukuran dan kepadatan berbeda.
+Mengidentifikasi observasi yang tidak cocok dengan cluster tertentu.
+
+Parameter yang perlu dievaluasi:
+
+min_cluster_size.
+min_samples.
+cluster_selection_method.
+Proporsi noise.
+Jumlah cluster.
+Stabilitas cluster.
+Model 3 — Deep Embedded Clustering (DEC)
+
+Kategori: Deep Learning.
+
+Tujuan:
+
+Mempelajari representasi laten dari fitur input.
+Mengintegrasikan representasi deep learning dengan proses clustering.
+Menghasilkan kelompok berdasarkan representasi yang dipelajari.
+
+Komponen utama:
+
+Feature encoder.
+Latent representation.
+Cluster assignment.
+Target distribution.
+Clustering refinement.
+
+DEC perlu dibandingkan menggunakan metrik clustering dan evaluasi stabilitas yang sesuai.
+
+4.3 Evaluasi model
+
+Evaluasi tidak menggunakan metrik klasifikasi seperti Recall, Precision, atau PR-AUC sebagai metrik utama clustering.
+
+Metrik yang dipertimbangkan:
+
+Metrik	Fungsi
+Silhouette Score	Mengukur pemisahan dan kekompakan cluster
+Davies-Bouldin Index	Mengukur kemiripan antarcluster
+Calinski-Harabasz Index	Mengukur rasio dispersi antarcluster dan dalam cluster
+Cluster Stability	Mengevaluasi konsistensi hasil
+Noise Ratio	Mengevaluasi proporsi observasi yang tidak terkelompok pada HDBSCAN
+Spatial Coherence	Mengevaluasi pola spasial hasil clustering
+
+Interpretasi hasil juga harus mempertimbangkan karakteristik geografis dan lingkungan.
+
+Nomor cluster tidak otomatis menunjukkan tingkat kerawanan.
+
+5. DATA ARCHITECTURE
+5.1 Prinsip pengelolaan data
+
+Data FIREGUARD ID dibangun melalui integrasi beberapa sumber.
+
+Prinsip utama:
+
+Mengutamakan sumber resmi dan ilmiah.
+Menyimpan data mentah tanpa perubahan.
+Mencatat metadata sumber.
+Memisahkan data raw, interim, dan processed.
+Memeriksa kualitas dan cakupan sebelum integrasi.
+Mendokumentasikan transformasi setiap variabel.
+Membedakan data aktual, hasil turunan, dan asumsi simulasi.
+5.2 Sumber data
+Sumber	Data	Kegunaan
+NASA FIRMS VIIRS	Historical hotspot detections	Riwayat deteksi kebakaran
+Copernicus ERA5-Land	Meteorological and soil variables	Kondisi lingkungan
+CHIRPS	Precipitation	Riwayat curah hujan
+MODIS MOD13Q1	NDVI/EVI	Kondisi vegetasi
+MODIS MCD12Q1	Land cover	Tutupan lahan
+DEMNAS/BIG	Elevation	Topografi
+Peatland datasets	Peat characteristics	Karakteristik lahan gambut
+OpenStreetMap	Roads and accessibility	Aksesibilitas
+Infrastructure inventory	Facilities and resources	Optimasi operasional
+
+Ketersediaan aktual setiap sumber harus diverifikasi melalui audit file, metadata, cakupan, dan kualitas.
+
+5.3 Data dictionary
+
+Data Dictionary yang telah disepakati terdiri atas:
+
+4 sheets.
+59 variabel.
+
+Variabel dibedakan berdasarkan fungsi:
+
+Data sourcing dan metadata.
+Kandidat fitur analisis kerawanan.
+Variabel turunan dan kontrol kualitas.
+Output clustering.
+Variabel prioritisasi.
+Input optimasi infrastruktur.
+Output optimasi.
+
+Tidak semua 59 variabel menjadi fitur clustering.
+
+Variabel seperti facility_id, capital_cost, dan fleet_count merupakan bagian dari optimasi infrastruktur, bukan prediktor kerawanan.
+
+Variabel seperti cluster_label_kmeans, cluster_label_hdbscan, dan cluster_label_dec merupakan output model, bukan input model.
+
+5.4 Variabel penting
+
+Beberapa variabel yang telah dibahas:
+
+Variabel	Fungsi
+observation_coverage_ratio	Mengukur cakupan observasi
+cluster_label_kmeans	Label cluster K-Means
+cluster_label_hdbscan	Label cluster HDBSCAN
+cluster_label_dec	Label cluster DEC
+priority_zone_class	Kategori zona prioritas
+priority_rank	Urutan prioritas
+
+Riwayat hotspot perlu dinormalisasi dengan mempertimbangkan cakupan observasi.
+
+Jumlah deteksi hotspot tidak boleh langsung dianggap sebagai luas area terbakar.
+
+6. DATA ENGINEERING PIPELINE
+
+Pipeline pengolahan data dirancang secara bertahap.
+
+6.1 Notebook 01 — Data Sourcing & Audit
+
+Nama:
+
+01_data_sourcing_audit.ipynb
+
+Tujuan:
+
+Membaca Data Dictionary dan Source Register.
+Mengambil data NASA FIRMS.
+Melakukan audit confidence.
+Memeriksa tanggal dan koordinat.
+Memeriksa duplikasi.
+Menguji akses ERA5-Land.
+Mengambil batas kerja Riau.
+Menginventarisasi file sumber.
+Mencatat metadata dan status sumber.
+Hasil aktual Notebook 01
+
+NASA FIRMS VIIRS S-NPP:
+
+Indikator	Hasil
+Total records	435.408
+Periode awal	20 Januari 2012
+Periode akhir	30 Desember 2025
+Download chunks	1.019
+Failed chunks	0
+Invalid dates	0
+Invalid coordinates	0
+Full-row duplicates	0
+
+Distribusi confidence:
+
+Confidence	Records	Persentase
+Nominal (n)	407.279	93,54%
+Low (l)	14.174	3,26%
+High (h)	13.955	3,20%
+
+ERA5-Land pilot:
+
+Parameter	Hasil
+Dataset	reanalysis-era5-land
+Periode	Juli 2020
+Time steps	744
+Format	NetCDF
+Ukuran	9.488.734 bytes
+Status unduhan	Successful
+
+Variabel:
+
+t2m
+tp
+u10
+v10
+swvl1
+
+Batas kerja Riau:
+
+Format GeoJSON.
+CRS EPSG:4326.
+Geometri MultiPolygon.
+Geometri valid.
+6.2 Notebook 01B — Post-Sourcing Validation
+
+Nama:
+
+01b_post_sourcing_validation.ipynb
+
+Tujuan:
+
+Memvalidasi hasil Notebook 01.
+Memeriksa file raw.
+Memeriksa distribusi confidence.
+Memvalidasi isi ERA5-Land pilot.
+Memeriksa geometri batas Riau.
+Menginventarisasi sumber tambahan.
+Menyusun readiness assessment.
+Temuan aktual Notebook 01B
+
+VIIRS
+
+Pemeriksaan integritas dasar berhasil:
+
+435.408 records.
+0 invalid dates.
+0 invalid coordinates.
+0 full-row duplicates.
+0 failed download chunks.
+
+ERA5-Land
+
+Dimensi:
+
+valid_time: 744.
+latitude: 37.
+longitude: 38.
+
+Missing fraction awal:
+
+Sekitar 19,4879% pada setiap variabel.
+
+Kelima variabel tersedia dan berhasil dibaca.
+
+Missingness tersebut masih perlu dianalisis berdasarkan lokasi grid, terutama grid yang berada di dalam wilayah Riau.
+
+Boundary Riau
+
+Bounds:
+
+Longitude: sekitar 100,0723–103,8138.
+Latitude: sekitar -1,1204–2,5556.
+
+Sumber boundary adalah GeoBoundaries dan masih berstatus batas kerja sementara.
+
+Temuan kesalahan cakupan spasial
+
+Notebook 01B menggunakan bounding box indikatif:
+
+latitude: 0.5–2.8
+
+Batas tersebut mengabaikan sebagian wilayah Riau bagian selatan.
+
+Karena itu, hasil 280.400 records dari bounding box tersebut tidak boleh dianggap sebagai total deteksi di seluruh wilayah Riau.
+
+Sumber tambahan
+
+Pada inventaris yang diperiksa Notebook 01B, belum ditemukan:
+
+CHIRPS.
+MODIS NDVI/EVI.
+Land cover.
+Peatland.
+DEM.
+Infrastructure inventory.
+
+Status ini mengacu pada direktori yang diaudit saat notebook dijalankan, bukan bukti bahwa sumber tersebut tidak tersedia di tempat lain.
+
+6.3 Notebook 01C — Data Quality Refinement
+
+Nama yang direncanakan:
+
+01c_data_quality_refinement.ipynb
+
+Status: Belum berhasil dibuat dan belum dieksekusi.
+
+Ruang lingkup yang direncanakan:
+
+Melakukan exact polygon clipping VIIRS menggunakan boundary Riau.
+Menghitung ulang distribusi temporal deteksi.
+Memetakan distribusi spasial deteksi.
+Memeriksa missingness ERA5-Land secara spasial.
+Membedakan missingness grid di dalam dan di luar Riau.
+Memeriksa metadata dan satuan ERA5.
+Menyusun Minimum Viable Feature Set.
+Menyusun readiness gate menuju Notebook 02.
+
+Prinsip:
+
+Tidak mengunduh ulang data.
+Tidak mengubah raw data.
+Tidak mengubah missing values menjadi nol.
+Tidak menganggap boundary sementara sebagai batas final.
+Tidak meloloskan Notebook 02 secara otomatis.
+6.4 Notebook 02 — Spatial-Temporal Dataset Engineering
+
+Nama:
+
+02_spatial_temporal_dataset_engineering.ipynb
+
+Status: Belum dijalankan.
+
+Tujuan:
+
+Membentuk grid analisis 0,1°.
+Mengagregasi data historis VIIRS.
+Mengintegrasikan variabel meteorologi.
+Mengintegrasikan variabel lingkungan.
+Menghasilkan profil kerawanan per grid.
+Melakukan audit missingness.
+Menghasilkan dataset untuk EDA dan clustering.
+
+Output utama yang direncanakan:
+
+vulnerability_profile_grid.parquet
+
+Notebook 02 hanya boleh difinalisasi setelah kualitas data, batas spasial, dan Minimum Viable Feature Set ditetapkan.
+
+7. SPATIAL ANALYSIS AND VULNERABILITY ASSESSMENT
+7.1 Spatial grid
+
+Unit analisis menggunakan grid 0,1°.
+
+Setiap grid memiliki:
+
+Identitas grid.
+Koordinat atau geometri.
+Indikator historis kebakaran.
+Indikator lingkungan.
+Metadata kualitas observasi.
+7.2 Historical fire indicators
+
+Indikator yang dipertimbangkan:
+
+Hotspot detection count.
+Fire detection days.
+Fire recurrence.
+Fire seasonal concentration.
+Fire Radiative Power (FRP).
+
+Setiap indikator harus memiliki definisi agregasi yang terdokumentasi.
+
+Confidence dan observation coverage digunakan untuk membantu mengevaluasi kualitas data, bukan sebagai pengganti indikator kerawanan.
+
+7.3 Environmental indicators
+
+Indikator yang dipertimbangkan:
+
+Temperatur.
+Curah hujan.
+Kecepatan dan komponen angin.
+Soil moisture.
+NDVI/EVI.
+Land cover.
+Elevasi.
+Karakteristik gambut.
+
+Ketersediaan dan kelayakan setiap variabel harus divalidasi terlebih dahulu.
+
+7.4 Vulnerability profiling
+
+Setelah preprocessing, setiap grid memiliki profil karakteristik yang menjadi input clustering.
+
+Hasil clustering kemudian dianalisis untuk memahami:
+
+Perbedaan karakteristik kelompok.
+Distribusi spasial.
+Konsentrasi historis deteksi.
+Kondisi lingkungan.
+Potensi kebutuhan intervensi.
+
+Kategori kerawanan tidak boleh ditentukan hanya berdasarkan nomor cluster.
+
+8. SPATIAL PRIORITIZATION
+
+Hasil clustering menjadi salah satu masukan bagi penentuan zona prioritas.
+
+Proses ini membutuhkan interpretasi tambahan.
+
+Komponen pertimbangan:
+
+Profil cluster.
+Riwayat deteksi kebakaran.
+Karakteristik lingkungan.
+Kualitas dan cakupan observasi.
+Distribusi spasial.
+Konteks infrastruktur dan aksesibilitas.
+
+Output yang direncanakan:
+
+priority_zone_class.
+priority_rank.
+Peta zona prioritas.
+
+Prioritas merupakan hasil analisis dan kebijakan yang perlu memiliki aturan transparan serta dapat dijelaskan.
+
+9. INFRASTRUCTURE AND RESOURCE OPTIMIZATION
+
+FIREGUARD ID tidak berhenti pada identifikasi zona kerawanan.
+
+Sistem juga diarahkan untuk memberikan dukungan keputusan terkait fasilitas dan sumber daya.
+
+Enam modul optimasi yang direncanakan:
+
+9.1 Base Location Optimization
+
+Menentukan lokasi strategis untuk markas atau fasilitas tanggap darurat.
+
+Pendekatan yang dipertimbangkan:
+
+Maximal Covering Location Problem (MCLP).
+
+Tujuan:
+
+Memaksimalkan cakupan wilayah prioritas.
+Mempertimbangkan jarak dan aksesibilitas.
+Mempertimbangkan jumlah fasilitas yang dapat dibangun.
+9.2 Base Capacity & Infrastructure Optimization
+
+Menentukan kapasitas fasilitas:
+
+Kapasitas operasional.
+Kebutuhan infrastruktur.
+Kapasitas penyimpanan peralatan.
+Kapasitas dukungan personel.
+9.3 Fleet & Equipment Optimization
+
+Mengoptimalkan:
+
+Jumlah armada.
+Distribusi kendaraan.
+Peralatan pemadaman.
+Ketersediaan sumber daya pendukung.
+9.4 Personnel Optimization
+
+Menentukan kebutuhan:
+
+Personel.
+Pembagian tim.
+Penempatan tenaga operasional.
+Kapasitas respons.
+9.5 Communication & Coordination Optimization
+
+Mendukung:
+
+Koordinasi antarfasilitas.
+Jalur komunikasi.
+Mekanisme distribusi informasi.
+Dukungan pengambilan keputusan.
+9.6 Budget & Operational Optimization
+
+Menghitung:
+
+Biaya pembangunan.
+Biaya operasional.
+Kebutuhan peralatan.
+Biaya pemeliharaan.
+Alokasi anggaran.
+
+Pendekatan optimasi dapat menggunakan Mixed Integer Linear Programming (MILP), sesuai kebutuhan formulasi dan ketersediaan data.
+
+Catatan: hasil clustering tidak otomatis menjadi lokasi markas. Hasil analisis kerawanan harus diintegrasikan dengan model optimasi, aksesibilitas, kapasitas, biaya, dan batasan operasional.
+
+10. SYSTEM ARCHITECTURE
+
+Arsitektur konseptual FIREGUARD ID terdiri atas enam komponen utama.
+
+Data Intelligence Layer.
+Clustering Engine.
+Vulnerability Assessment Engine.
+Spatial Prioritization Engine.
+Infrastructure Optimization Engine.
+Geospatial Visualization Layer.
+
+Alur konseptual:
+
+text
+DATA SOURCES
+    |
+    v
+DATA SOURCING & AUDIT
+    |
+    v
+DATA QUALITY VALIDATION
+    |
+    v
+SPATIAL-TEMPORAL DATA ENGINEERING
+    |
+    v
+EXPLORATORY DATA ANALYSIS
+    |
+    v
+FEATURE PREPROCESSING
+    |
+    v
+MACHINE LEARNING CLUSTERING
+    |
+    +---------------------+
+    |                     |
+    v                     v
+K-MEANS               HDBSCAN
+    |                     |
+    +----------+----------+
+               |
+               v
+              DEC
+               |
+               v
+CLUSTER INTERPRETATION
+               |
+               v
+VULNERABILITY PROFILING
+               |
+               v
+SPATIAL PRIORITIZATION
+               |
+               v
+INFRASTRUCTURE OPTIMIZATION
+               |
+               v
+RESOURCE & BUDGET OPTIMIZATION
+               |
+               v
+GEOSPATIAL DECISION SUPPORT
+
+
+Diagram tersebut merupakan arsitektur konseptual. Implementasi final dapat disesuaikan berdasarkan hasil eksperimen dan ketersediaan data.
+
+11. PROJECT DIRECTORY STRUCTURE
+
+Struktur direktori konseptual yang direkomendasikan:
+
+text
+FIREGUARD-ID/
+│
+├── README.md
+├── PROJECT_MASTER.md
+│
+├── docs/
+│   ├── methodology.md
+│   ├── data_dictionary.xlsx
+│   ├── source_register.xlsx
+│   └── architecture.md
+│
+├── notebooks/
+│   ├── 01_data_sourcing_audit.ipynb
+│   ├── 01b_post_sourcing_validation.ipynb
+│   ├── 01c_data_quality_refinement.ipynb
+│   ├── 02_spatial_temporal_dataset_engineering.ipynb
+│   ├── 03_exploratory_data_analysis.ipynb
+│   ├── 04_feature_preprocessing.ipynb
+│   ├── 05_kmeans_clustering.ipynb
+│   ├── 06_hdbscan_clustering.ipynb
+│   ├── 07_dec_clustering.ipynb
+│   ├── 08_cluster_evaluation.ipynb
+│   ├── 09_spatial_prioritization.ipynb
+│   └── 10_infrastructure_optimization.ipynb
+│
+├── data/
+│   ├── raw/
+│   ├── interim/
+│   └── processed/
+│
+├── reports/
+│   ├── data_sourcing_audit/
+│   ├── post_sourcing_validation/
+│   ├── data_quality_refinement/
+│   ├── eda/
+│   ├── clustering/
+│   └── optimization/
+│
+├── models/
+│   ├── kmeans/
+│   ├── hdbscan/
+│   └── dec/
+│
+├── outputs/
+│   ├── maps/
+│   ├── visualizations/
+│   ├── vulnerability_profiles/
+│   └── optimization_results/
+│
+└── src/
+    ├── data/
+    ├── preprocessing/
+    ├── clustering/
+    ├── geospatial/
+    └── optimization/
+
+
+Struktur ini merupakan rancangan pengembangan, bukan klaim bahwa seluruh direktori dan notebook sudah tersedia.
+
+12. CURRENT PROJECT PROGRESS
+
+Berdasarkan perkembangan proyek hingga 20 November 2026:
+
+Komponen	Status
+Project concept	Dirumuskan
+Pilot region Riau	Ditetapkan
+Metodologi clustering	Disepakati
+K-Means	Direncanakan
+HDBSCAN	Direncanakan
+DEC	Direncanakan
+Data Dictionary	Disetujui, 59 variabel
+Notebook 01	Berhasil dijalankan
+VIIRS sourcing	Berhasil
+ERA5-Land pilot	Berhasil diunduh
+Notebook 01B	Berhasil dijalankan
+VIIRS polygon clipping	Belum dikonfirmasi selesai
+ERA5 spatial missingness refinement	Belum dikonfirmasi selesai
+Notebook 01C	Belum dibuat/diuji
+Notebook 02	Belum dijalankan
+EDA	Belum dimulai
+Clustering experiments	Belum dimulai
+Spatial prioritization	Belum dimulai
+Infrastructure optimization	Belum dimulai
+Final visualization system	Belum dimulai
+12.1 Current blockers
+
+Beberapa persoalan yang perlu diselesaikan:
+
+Boundary Riau masih menggunakan GeoBoundaries sebagai batas kerja sementara.
+ERA5-Land baru tersedia dalam bentuk pilot Juli 2020.
+Missing fraction ERA5-Land sekitar 19,49% dan perlu pemeriksaan spasial.
+Distribusi VIIRS harus dihitung menggunakan exact polygon clipping, bukan bounding box indikatif.
+CHIRPS, MODIS, peatland, DEM, dan data infrastruktur belum ditemukan dalam inventaris folder yang diaudit.
+Minimum Viable Feature Set belum ditetapkan secara final.
+Observation coverage perlu dipertimbangkan dalam pembentukan fitur historis.
+13. DEVELOPMENT ROADMAP
+Phase 1 — Research Foundation
+Penetapan masalah.
+Penetapan tujuan.
+Penetapan wilayah pilot.
+Penetapan metodologi.
+Penyusunan README dan Data Dictionary.
+
+Status: rancangan utama telah disepakati.
+
+Phase 2 — Data Acquisition
+NASA FIRMS.
+ERA5-Land.
+Boundary Riau.
+CHIRPS.
+MODIS.
+Peatland.
+DEM.
+Geospatial dan infrastruktur.
+
+Status: sourcing awal telah dilakukan; sumber tambahan masih perlu dilengkapi.
+
+Phase 3 — Data Quality Refinement
+Audit integritas VIIRS.
+Exact polygon clipping.
+Pemeriksaan ERA5 missingness.
+Pemeriksaan satuan.
+Verifikasi boundary.
+Penyusunan Minimum Viable Feature Set.
+
+Status: Notebook 01B selesai; Notebook 01C belum selesai dibuat dan dieksekusi.
+
+Phase 4 — Dataset Engineering
+Pembentukan grid.
+Agregasi data historis.
+Integrasi variabel lingkungan.
+Perhitungan observation coverage.
+Pembuatan vulnerability profile.
+
+Status: menunggu penyelesaian quality gate.
+
+Phase 5 — EDA and Feature Engineering
+Analisis distribusi.
+Analisis korelasi.
+Analisis missingness.
+Analisis spasial.
+Normalisasi fitur.
+Feature selection.
+
+Status: belum dimulai.
+
+Phase 6 — Clustering Experiments
+K-Means.
+HDBSCAN.
+DEC.
+Hyperparameter evaluation.
+Cluster stability.
+Spatial interpretation.
+
+Status: belum dimulai.
+
+Phase 7 — Vulnerability Assessment
+Interpretasi cluster.
+Pembentukan profil kerawanan.
+Penentuan zona prioritas.
+Validasi hasil.
+
+Status: belum dimulai.
+
+Phase 8 — Infrastructure Optimization
+Base location.
+Facility capacity.
+Fleet.
+Personnel.
+Communication.
+Budget.
+
+Status: belum dimulai.
+
+Phase 9 — Decision Support System
+Integrasi hasil.
+Peta interaktif.
+Dashboard.
+Laporan rekomendasi.
+Dokumentasi final.
+
+Status: belum dimulai.
+
+14. SCIENTIFIC AND DATA GOVERNANCE PRINCIPLES
+
+Seluruh pengembangan FIREGUARD ID harus mempertahankan prinsip berikut.
+
+14.1 Data integrity
+Data mentah tidak boleh ditimpa.
+Seluruh transformasi harus terdokumentasi.
+Data sumber harus memiliki provenance.
+Perubahan skema harus dicatat.
+14.2 Spatial validity
+Batas administratif harus memiliki sumber yang jelas.
+CRS harus diperiksa sebelum analisis.
+Spatial clipping harus menggunakan geometri yang tepat.
+Resolusi grid harus konsisten.
+14.3 Temporal validity
+Periode aktual harus dicatat per sumber.
+Missing dates tidak boleh otomatis dianggap tidak terjadi kebakaran.
+Agregasi temporal harus mempertimbangkan karakteristik sumber.
+Data dengan cakupan berbeda tidak boleh digabungkan tanpa dokumentasi.
+14.4 Model validity
+Clustering bukan prediksi probabilitas kebakaran.
+Nomor cluster bukan tingkat kerawanan.
+Model harus dievaluasi menggunakan metrik yang sesuai.
+Interpretasi hasil harus didukung karakteristik lingkungan dan geografis.
+14.5 Decision transparency
+Rekomendasi prioritas harus dapat dijelaskan.
+Asumsi optimasi harus didokumentasikan.
+Data aktual harus dipisahkan dari data simulasi.
+Keterbatasan sistem harus disampaikan.
+15. DEFINITION OF SUCCESS
+
+Keberhasilan FIREGUARD ID tidak hanya diukur dari keberhasilan menjalankan model machine learning.
+
+Indikator keberhasilan proyek meliputi:
+
+Dataset historis dan lingkungan memiliki kualitas yang dapat dipertanggungjawabkan.
+Tersedia profil kerawanan spasial yang konsisten.
+Ketiga metode clustering berhasil dibandingkan secara metodologis.
+Hasil cluster dapat diinterpretasikan secara geografis.
+Zona prioritas dapat dijelaskan berdasarkan indikator yang terukur.
+Optimasi fasilitas dan sumber daya memiliki formulasi serta asumsi yang transparan.
+Sistem menghasilkan rekomendasi yang dapat dimanfaatkan sebagai bahan pengambilan keputusan.
+16. IMMEDIATE NEXT ACTIONS
+
+Prioritas pengembangan saat ini:
+
+Membuat dan menjalankan 01c_data_quality_refinement.ipynb.
+Melakukan exact polygon clipping VIIRS menggunakan boundary Riau.
+Memetakan missingness ERA5-Land di dalam dan di luar Riau.
+Memverifikasi batas administratif terhadap BIG/Kemendagri.
+Menentukan strategi kelengkapan data meteorologi dan lingkungan.
+Menetapkan Minimum Viable Feature Set.
+Menyelesaikan quality gate sebelum menjalankan Notebook 02.
+
+Notebook 02 tidak boleh menghasilkan dataset final sebelum kualitas input, batas spasial, dan definisi fitur dinyatakan memadai.
+
+17. PROJECT GOVERNANCE AND DOCUMENT MAINTENANCE
+
+Dokumen ini merupakan dokumen induk yang menjadi acuan pengembangan FIREGUARD ID.
+
+Setiap perubahan metodologi, sumber data, struktur variabel, dan pipeline harus diperbarui pada dokumen terkait.
+
+Prinsip pemeliharaan:
+
+README menjelaskan gambaran proyek dan cara menjalankannya.
+PROJECT_MASTER.md menjelaskan keseluruhan proyek.
+Methodology document menjelaskan pendekatan ilmiah.
+Data Dictionary menjelaskan definisi variabel.
+Source Register menjelaskan sumber dan provenance data.
+Notebook mendokumentasikan implementasi teknis.
+Reports menyimpan hasil eksekusi dan evaluasi.
+
+Setiap hasil yang belum dieksekusi tidak boleh dicatat sebagai hasil aktual.
+
+18. FINAL PROJECT STATEMENT
+
+FIREGUARD ID dikembangkan sebagai sistem pendukung keputusan berbasis artificial intelligence, geospatial analytics, dan mathematical optimization untuk mendukung mitigasi serta penanggulangan kebakaran hutan dan lahan.
+
+Melalui integrasi data historis kebakaran, kondisi lingkungan, analisis clustering, spatial prioritization, dan optimasi sumber daya, proyek ini diharapkan dapat memberikan pendekatan yang lebih terukur dalam memahami kerawanan dan merencanakan intervensi Karhutla.
+
+Fokus pengembangan bukan hanya menghasilkan model yang memiliki performa matematis baik, tetapi membangun sistem yang:
+
+Berbasis data yang valid.
+Memiliki metodologi yang transparan.
+Mempertimbangkan karakteristik geografis.
+Menghasilkan rekomendasi yang dapat dijelaskan.
+Mendukung pengambilan keputusan operasional.
+Dapat dikembangkan untuk wilayah lain di Indonesia.
+
+FIREGUARD ID — From Fire Intelligence to Strategic Mitigation Decisions.
+
+Document type: Project Master Document
+Project: FIREGUARD ID
+Last updated: 20 November 2026
+Status: Active Development — Data Quality Refinement Phase
