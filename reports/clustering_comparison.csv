@@ -1,0 +1,16 @@
+model,split,n_clusters,noise_ratio,silhouette_score,davies_bouldin_score,calinski_harabasz_score,spatial_coherence
+"K-Means (k=2, Optimal)",Train,2,0.0,0.7887,1.0556,271.8503,0.9182
+"K-Means (k=2, Optimal)",Validation,2,0.0,0.8273,1.0064,70.1279,0.908
+"K-Means (k=2, Optimal)",Test,2,0.0,0.7272,0.8363,62.1797,0.9107
+"K-Means (k=4, Baseline)",Train,4,0.0,0.6721,0.7784,311.4928,0.8052
+"K-Means (k=4, Baseline)",Validation,4,0.0,0.691,0.5236,264.6037,0.884
+"K-Means (k=4, Baseline)",Test,2,0.0,0.6597,0.9761,81.297,0.7976
+"HDBSCAN (15, 5)",Train,2,0.3853,0.6255,0.4263,678.5532,0.4439
+"HDBSCAN (15, 5)",Validation,2,0.0,0.1891,1.0077,9.9742,0.636
+"HDBSCAN (15, 5)",Test,2,0.0,0.2148,0.914,27.7689,0.629
+"DEC (Latent Space, k=4)",Train,4,0.0,0.6504,0.7217,489.8734,0.6336
+"DEC (Latent Space, k=4)",Validation,4,0.0,0.6637,0.433,677.0152,0.622
+"DEC (Latent Space, k=4)",Test,4,0.0,0.6229,0.5761,119.4444,0.6468
+"DEC (Input Space, k=4)",Train,4,0.0,0.5164,1.2276,224.0513,0.6336
+"DEC (Input Space, k=4)",Validation,4,0.0,0.5048,0.6318,371.1095,0.622
+"DEC (Input Space, k=4)",Test,4,0.0,0.5083,0.8888,52.3441,0.6468

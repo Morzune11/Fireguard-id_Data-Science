@@ -1,0 +1,5 @@
+cluster_dec,grid_count,hotspot_count_mean,hotspot_count_max,fire_days_mean,fire_days_max,mean_frp_mean,mean_frp_max,max_frp_mean,max_frp_max,high_conf_count_mean,high_conf_count_max
+1,10,260.8,763,163.9,472,9.9,59.61,89.5,291.93,1.1,6
+3,11,205.82,353,27.0,67,11.12,20.3,75.99,131.93,15.18,39
+2,224,37.62,213,16.06,69,7.8,34.83,29.97,156.82,0.77,7
+0,590,3.74,32,2.95,26,2.03,8.56,3.52,14.93,0.02,2
