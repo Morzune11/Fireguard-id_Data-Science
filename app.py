@@ -44,8 +44,10 @@ page = st.sidebar.radio(
     [
         "1. Ringkasan & Checklist Minggu 3",
         "2. Baseline: K-Means (Bab 6.1)",
-        "3. Advanced: HDBSCAN & DEC (Bab 6.2)",
-        "4. Peta Zonasi & Profil Kerawanan",
+        "3. Advanced: HDBSCAN (Bab 6.2)",
+        "4. Deep Learning: DEC (Autoencoder)",
+        "5. Peta Zonasi & Profil Kerawanan",
+        "6. Fase 3: Spatial Prioritization",
     ],
 )
 st.sidebar.markdown("---")
@@ -124,9 +126,9 @@ elif page == "2. Baseline: K-Means (Bab 6.1)":
     )
 
 # ------------------------------------------------------------------
-# PAGE 3: ADVANCED HDBSCAN & DEC
+# PAGE 3: ADVANCED HDBSCAN
 # ------------------------------------------------------------------
-elif page == "3. Advanced: HDBSCAN & DEC (Bab 6.2)":
+elif page == "3. Advanced: HDBSCAN (Bab 6.2)":
     st.title("🔬 Model 2 (Advanced): HDBSCAN & Komparasi Model")
     hdb_df = load_csv("reports/hdbscan_tuning_metrics.csv")
     comp_df = load_csv("reports/clustering_comparison.csv")
@@ -143,9 +145,47 @@ elif page == "3. Advanced: HDBSCAN & DEC (Bab 6.2)":
         st.image("reports/figures/clustering_model_comparison.png", use_container_width=True)
 
 # ------------------------------------------------------------------
-# PAGE 4: PETA ZONASI & PROFIL KERAWANAN
+# PAGE 4: DEEP LEARNING DEC
 # ------------------------------------------------------------------
-elif page == "4. Peta Zonasi & Profil Kerawanan":
+elif page == "4. Deep Learning: DEC (Autoencoder)":
+    st.title("🧠 Model 3 (Deep Learning): Deep Embedded Clustering (DEC)")
+    st.markdown(
+        "**Arsitektur:** PyTorch Autoencoder (`5 → 32 → 16 → 4` *Latent Space* `→ 16 → 32 → 5`) "
+        "yang dikombinasikan dengan *Student's t-distribution soft assignment* dan *KL-Divergence refinement* (Xie et al., 2016)."
+    )
+
+    comp_df = load_csv("reports/clustering_comparison.csv")
+    dec_comp = comp_df[comp_df["model"].str.contains("DEC")].copy()
+
+    c1, c2, c3 = st.columns(3)
+    dec_val = dec_comp[(dec_comp["model"] == "DEC (Latent Space, k=4)") & (dec_comp["split"] == "Validation")].iloc[0]
+    c1.metric("Val Silhouette (Latent)", f"{dec_val['silhouette_score']:.4f}", "4 Klaster Konsisten")
+    c2.metric("Val Davies-Bouldin", f"{dec_val['davies_bouldin_score']:.4f}", "Lebih rendah = lebih baik")
+    c3.metric("Val Calinski-Harabasz", f"{dec_val['calinski_harabasz_score']:.2f}", "Tertinggi di Val & Test")
+
+    st.subheader("1. Metrik Evaluasi DEC (Train, Validation, & Test)")
+    st.dataframe(dec_comp, use_container_width=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("2. Representasi Ruang Laten (z1 vs z2)")
+        if os.path.exists("reports/dec_latent_coords.csv"):
+            latent_df = load_csv("reports/dec_latent_coords.csv")
+            latent_df["dec_cluster"] = latent_df["dec_cluster"].astype(str)
+            st.scatter_chart(latent_df, x="z1", y="z2", color="dec_cluster")
+        elif os.path.exists("reports/figures/dec_latent_space.png"):
+            st.image("reports/figures/dec_latent_space.png", use_container_width=True)
+
+    with col2:
+        st.subheader("3. Profil Kerawanan Klaster DEC (835 Grid)")
+        if os.path.exists("reports/cluster_profile_dec.csv"):
+            prof_dec = load_csv("reports/cluster_profile_dec.csv")
+            st.dataframe(prof_dec, use_container_width=True)
+
+# ------------------------------------------------------------------
+# PAGE 5: PETA ZONASI & PROFIL KERAWANAN
+# ------------------------------------------------------------------
+elif page == "5. Peta Zonasi & Profil Kerawanan":
     st.title("🗺️ Peta Zonasi & Profil Kerawanan Riau (835 Grid)")
     grid_df = load_csv("data/processed/riau_vulnerability_clusters_evaluated.csv")
 
@@ -164,3 +204,36 @@ elif page == "4. Peta Zonasi & Profil Kerawanan":
     st.subheader("Tabel Profil Grid Kerawanan")
     cols_show = ["grid_id", "priority_zone_class", "hotspot_count", "fire_days", "mean_frp", "max_frp", "high_conf_count", "cluster_dec"]
     st.dataframe(filtered_df[cols_show].sort_values("hotspot_count", ascending=False), use_container_width=True)
+
+# ------------------------------------------------------------------
+# PAGE 6: FASE 3 - SPATIAL PRIORITIZATION
+# ------------------------------------------------------------------
+elif page == "6. Fase 3: Spatial Prioritization":
+    st.title("🎯 Fase 3: Spatial Prioritization (MCDA)")
+    st.markdown(
+        "Penentuan **Priority Score (0–100)** dan **Priority Rank (1–835)** secara transparan menggunakan bobot: "
+        "**40%** Riwayat & Rekurensi + **25%** Intensitas FRP & Confidence + **20%** Konsensus Klaster (K-Means & DEC) + **15%** Spillover Tetangga."
+    )
+
+    prio_df = load_csv("data/processed/riau_spatial_prioritization.csv")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Prioritas 1 - Kritis", int((prio_df["priority_zone_class"] == "Prioritas 1 - Kritis").sum()), "Skor >= 65")
+    c2.metric("Prioritas 2 - Tinggi", int((prio_df["priority_zone_class"] == "Prioritas 2 - Tinggi").sum()), "Skor 45–64.9")
+    c3.metric("Prioritas 3 - Sedang", int((prio_df["priority_zone_class"] == "Prioritas 3 - Sedang").sum()), "Skor 25–44.9")
+    c4.metric("Prioritas 4 - Rendah", int((prio_df["priority_zone_class"] == "Prioritas 4 - Rendah").sum()), "Skor < 25")
+
+    st.subheader("1. Peta Interaktif Zona Prioritas Mitigasi Riau")
+    prio_map_path = "outputs/maps/peta_zona_prioritas_riau.html"
+    if os.path.exists(prio_map_path):
+        with open(prio_map_path, "r", encoding="utf-8") as f:
+            components.html(f.read(), height=540, scrolling=False)
+
+    col_a, col_b = st.columns([1.2, 1])
+    with col_a:
+        st.subheader("2. Top 20 Grid Prioritas Paling Mendesak")
+        top20_df = load_csv("reports/top_20_priority_grids.csv")
+        st.dataframe(top20_df, use_container_width=True)
+    with col_b:
+        st.subheader("3. Distribusi & Breakdown Skor")
+        if os.path.exists("reports/figures/spatial_prioritization_breakdown.png"):
+            st.image("reports/figures/spatial_prioritization_breakdown.png", use_container_width=True)
